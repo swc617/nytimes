@@ -1,10 +1,10 @@
-const express = require("express");
-const axios = require("axios");
+const express = require('express');
+const axios = require('axios');
 const router = express.Router();
-const validateDatePackage = require("validate-date");
+const validateDatePackage = require('validate-date');
 
-const baseurl = "https://api.nytimes.com/svc/archive/v1/";
-const apiKey = "A3yHsAA1pxBrJksFKDpSADGpRKQq2HFG";
+const baseurl = 'https://api.nytimes.com/svc/archive/v1/';
+const apiKey = 'A3yHsAA1pxBrJksFKDpSADGpRKQq2HFG';
 
 /**
  * Use the nytimes api to retreive articles on a given year or month.
@@ -22,7 +22,7 @@ function get_articles({ year, month } = {}) {
 		month = today.getMonth() + 1;
 		console.log(year, month);
 	}
-	var url = baseurl + year + "/" + month + ".json?api-key=" + apiKey;
+	var url = baseurl + year + '/' + month + '.json?api-key=' + apiKey;
 	return axios
 		.get(url)
 		.then((response) => {
@@ -62,21 +62,21 @@ function process_articles(articles) {
 }
 
 /**
- * Helper function for checkValidDate.
+ * Helper function for check_date.
  *
  * @param {string} year - year to format
  * @param {string} month - month to format
  * @param {string} day - date to format
  * @returns {Array} an formatted array with no empty spaces
  */
-function formatDate(year, month, day) {
+function format_date(year, month, day) {
 	var numDay = parseInt(day);
 	var numMonth = parseInt(month);
 	if (0 < numDay && numDay < 10) {
-		day = "0" + day;
+		day = '0' + day;
 	}
 	if (0 < numMonth && numMonth < 10) {
-		month = "0" + month;
+		month = '0' + month;
 	}
 	return [year, month, day];
 }
@@ -90,12 +90,12 @@ function formatDate(year, month, day) {
  * @param {string} day - date to check
  * @returns {boolean} - whether or not input date is valid
  */
-function checkValidDate(year, month, day) {
-	var [year, month, day] = formatDate(year, month, day);
+function check_date(year, month, day) {
+	var [year, month, day] = format_date(year, month, day);
 
 	return validateDatePackage(
-		month + "/" + day + "/" + year,
-		(responseType = "boolean")
+		month + '/' + day + '/' + year,
+		(responseType = 'boolean')
 	);
 }
 
@@ -130,8 +130,8 @@ function validate_date(req) {
 	if (month < 1 || month > 12) {
 		return false;
 	}
-	if ("date" in req.query) {
-		if (checkValidDate(year, month, req.query.date)) {
+	if ('date' in req.query) {
+		if (check_date(year, month, req.query.date)) {
 			date = req.query.date;
 			// cannot look for articles ahead of this date
 			if (year == currYear && month == currMonth && date > currDate) {
@@ -144,7 +144,7 @@ function validate_date(req) {
 	} else {
 		date = false;
 	}
-	if ("hrs" in req.query) {
+	if ('hrs' in req.query) {
 		hrs = req.query.hrs;
 		if (hrs > 24 || hrs < 0) {
 			return false;
@@ -216,7 +216,7 @@ function search_article(id, articles) {
 
 // get articles of this year and month
 // ex) http://localhost:3000/nytimes
-router.get("/", (req, res) => {
+router.get('/', (req, res) => {
 	get_articles({})
 		.then((articles) => {
 			var processed = process_articles(articles);
@@ -230,9 +230,9 @@ router.get("/", (req, res) => {
 // get articles of year month, date and hrs (date and hours can be omitted)
 // hrs is the time of the day. must be in 24 hr format
 // ex) http://localhost:3000/nytimes/articles?year=1899&month=12&date=21&hrs=2
-router.get("/articles", (req, res) => {
+router.get('/articles', (req, res) => {
 	if (!validate_date(req)) {
-		res.status(400).json({ message: "Invalid Query" });
+		res.status(400).json({ message: 'Invalid Query' });
 	} else {
 		var { year, month, date, hrs } = validate_date(req);
 		get_articles({ year, month })
@@ -245,7 +245,7 @@ router.get("/articles", (req, res) => {
 					);
 				}
 				if (articles.length === 0) {
-					res.json({ message: "No articles found" });
+					res.json({ message: 'No articles found' });
 				} else {
 					var procesed = process_articles(articles);
 					res.json(procesed);
@@ -259,16 +259,16 @@ router.get("/articles", (req, res) => {
 
 // get specific article from year and month using id
 // ex) http://localhost:3000/nytimes/article/nyt://article/0dc0f814-bbfb-5b47-9f2c-3d1042dfe46d?year=2022&month=7
-router.get("/article/*", (req, res) => {
+router.get('/article/*', (req, res) => {
 	if (!validate_date(req)) {
-		res.status(400).json({ message: "Invalid Query" });
+		res.status(400).json({ message: 'Invalid Query' });
 	} else {
 		var { year, month, _, _ } = validate_date(req);
 		get_articles({ year, month })
 			.then((articles) => {
-				var result = search_article(req.params["0"], articles);
+				var result = search_article(req.params['0'], articles);
 				if (result.length === 0) {
-					res.json({ message: "No articles found" });
+					res.json({ message: 'No articles found' });
 				} else {
 					var processed = process_articles(result);
 					res.json(processed);
@@ -280,8 +280,8 @@ router.get("/article/*", (req, res) => {
 	}
 });
 
-router.get("*", (req, res) => {
-	res.send("<h1>404</h1>");
+router.get('*', (req, res) => {
+	res.send('<h1>404</h1>');
 });
 
 module.exports = {
