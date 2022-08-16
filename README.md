@@ -1,3 +1,4 @@
-# nytimes
+# Nytimes API
 
-link to blog: 
+뉴욕타임즈 오픈 API 래퍼
+
